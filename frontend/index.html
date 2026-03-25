@@ -5,11 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Text Quality Checker</title>
     <link rel="stylesheet" href="style.css" />
+    <style>
+        .topbar {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .topbar-left h1 { margin: 0; font-size: 1.25rem; }
+        .topbar-left p  { margin: 4px 0 0; font-size: 0.83rem; color: #6b7280; }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .user-badge {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #374151;
+            background: var(--gray);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 5px 12px;
+            white-space: nowrap;
+        }
+
+        .logout-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: #6b7280;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+            white-space: nowrap;
+        }
+
+        .logout-btn:hover {
+            background: #fee2e2;
+            border-color: #fca5a5;
+            color: #991b1b;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Text Quality Checker</h1>
-        <p>Enter your text, then click <strong>Check</strong>. The backend will classify and correct your text.</p>
+
+        <div class="topbar">
+            <div class="topbar-left">
+                <h1>Text Quality Checker</h1>
+                <p>Enter your text, then click <strong>Check</strong>. The backend will classify and correct your text.</p>
+            </div>
+            <div class="topbar-right">
+                <span class="user-badge" id="userBadge">…</span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
 
         <textarea id="inputText" placeholder="Type or paste text here..." rows="8"></textarea>
         <div class="actions">
@@ -45,19 +105,38 @@
     </div>
 
     <script>
-        const API_URL = "http://localhost:5000/check";
+        const API_URL  = "http://localhost:5000/check";
+        const BASE_URL = "http://localhost:5000";
 
-        const inputText = document.getElementById("inputText");
-        const checkButton = document.getElementById("checkButton");
-        const clearButton = document.getElementById("clearButton");
-        const statusEl = document.getElementById("status");
-        const resultsEl = document.getElementById("results");
-        const originalTextEl = document.getElementById("originalText");
+        /* ── Auth guard ── */
+        const token = localStorage.getItem("token");
+        if (!token) {
+            window.location.href = "login.html";
+        }
+
+        /* ── Show username in badge ── */
+        const username = localStorage.getItem("username") || "User";
+        document.getElementById("userBadge").textContent = "👤 " + username;
+
+        /* ── Logout ── */
+        function logout() {
+            localStorage.removeItem("token");
+            localStorage.removeItem("username");
+            window.location.href = "login.html";
+        }
+
+        /* ── DOM refs ── */
+        const inputText       = document.getElementById("inputText");
+        const checkButton     = document.getElementById("checkButton");
+        const clearButton     = document.getElementById("clearButton");
+        const statusEl        = document.getElementById("status");
+        const resultsEl       = document.getElementById("results");
+        const originalTextEl  = document.getElementById("originalText");
         const correctedTextEl = document.getElementById("correctedText");
         const highlightedTextEl = document.getElementById("highlightedText");
-        const summaryList = document.getElementById("summaryList");
+        const summaryList     = document.getElementById("summaryList");
         const grammarErrorsEl = document.getElementById("grammarErrors");
-        const styleErrorsEl = document.getElementById("styleErrors");
+        const styleErrorsEl   = document.getElementById("styleErrors");
 
         function showStatus(message, kind = "info") {
             statusEl.textContent = message;
@@ -87,9 +166,18 @@
             try {
                 const response = await fetch(API_URL, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token   /* ← JWT gửi lên backend */
+                    },
                     body: JSON.stringify({ text }),
                 });
+
+                /* Token hết hạn hoặc không hợp lệ → đá về login */
+                if (response.status === 401) {
+                    logout();
+                    return;
+                }
 
                 const payload = await response.json();
 
@@ -99,7 +187,7 @@
                     return;
                 }
 
-                originalTextEl.textContent = payload.original_text;
+                originalTextEl.textContent  = payload.original_text;
                 correctedTextEl.textContent = payload.corrected_text;
                 highlightedTextEl.innerHTML = payload.highlighted_text || payload.corrected_text;
 
@@ -112,23 +200,23 @@
                 `;
 
                 function renderList(list) {
-    return list.map(item =>
-        `<li>
-            <strong>${item.message}</strong><br>
-            Suggestions: ${item.suggestions.join(", ")}
-        </li>`
-    ).join("");
-}
-                grammarErrorsEl.innerHTML = payload.grammar_errors?.length
-    ? renderList(payload.grammar_errors)
-    : "<li>none</li>";
+                    return list.map(item =>
+                        `<li>
+                            <strong>${item.message}</strong><br>
+                            Suggestions: ${item.suggestions.join(", ")}
+                        </li>`
+                    ).join("");
+                }
 
-styleErrorsEl.innerHTML = payload.style_errors?.length
-    ? renderList(payload.style_errors)
-    : "<li>none</li>";
+                grammarErrorsEl.innerHTML = payload.grammar_errors?.length
+                    ? renderList(payload.grammar_errors) : "<li>none</li>";
+
+                styleErrorsEl.innerHTML = payload.style_errors?.length
+                    ? renderList(payload.style_errors) : "<li>none</li>";
 
                 resultsEl.hidden = false;
                 showStatus("Analysis completed", "success");
+
             } catch (error) {
                 showStatus("Network or server error: " + error.message, "error");
                 resultsEl.hidden = true;

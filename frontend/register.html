@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Sign Up | Text Quality Checker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(145deg, #f8fafc 0%, #eef2f8 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: -20%; left: -10%;
+      width: 60%; height: 60%;
+      background: radial-gradient(circle, rgba(99,102,241,0.08) 0%, rgba(99,102,241,0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      bottom: -10%; right: -5%;
+      width: 55%; height: 55%;
+      background: radial-gradient(circle, rgba(16,185,129,0.06) 0%, rgba(16,185,129,0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page-wrapper {
+      max-width: 480px;
+      width: 100%;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-section { text-align: center; margin-bottom: 2rem; }
+
+    .badge-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.2rem;
+    }
+
+    .free-badge {
+      background: rgba(16,185,129,0.12);
+      backdrop-filter: blur(2px);
+      padding: 0.3rem 1rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #059669;
+      letter-spacing: 0.3px;
+      border: 1px solid rgba(5,150,105,0.2);
+    }
+
+    .hero-section h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #1E293B, #1a6b4a, #059669);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      margin-bottom: 0.4rem;
+    }
+
+    .hero-section p {
+      color: #4b5563;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .auth-card {
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(2px);
+      border-radius: 2rem;
+      box-shadow: 0 20px 35px -12px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.02);
+      padding: 2.2rem 2rem;
+      border: 1px solid rgba(255,255,255,0.6);
+      animation: fadeUp 0.35s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-header { margin-bottom: 1.8rem; }
+
+    .card-header h2 {
+      font-size: 1.9rem;
+      font-weight: 700;
+      background: linear-gradient(120deg, #1e293b, #2d3a4e);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      letter-spacing: -0.3px;
+    }
+
+    .card-sub {
+      font-size: 0.85rem;
+      color: #5b6e8c;
+      margin-top: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .card-sub i { font-size: 0.7rem; color: #34d399; }
+
+    .input-group {
+      margin-bottom: 1.3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .input-group label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #334155;
+    }
+
+    .input-field {
+      display: flex;
+      align-items: center;
+      background: #f1f5f9;
+      border-radius: 1.2rem;
+      padding: 0.65rem 1rem;
+      border: 1px solid #e2e8f0;
+      transition: all 0.2s;
+    }
+
+    .input-field i { color: #94a3b8; font-size: 1rem; margin-right: 0.7rem; }
+
+    .input-field input {
+      border: none;
+      background: transparent;
+      width: 100%;
+      font-size: 0.95rem;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      color: #0f172a;
+    }
+
+    .input-field input::placeholder { color: #94a3b8; font-weight: 400; }
+
+    .input-field:focus-within {
+      border-color: #34d399;
+      box-shadow: 0 0 0 3px rgba(16,185,129,0.15);
+      background: #fff;
+    }
+
+    /* Password strength bar */
+    .strength-bar {
+      height: 4px;
+      border-radius: 4px;
+      background: #e2e8f0;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+
+    .strength-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      width: 0%;
+      transition: width 0.3s, background 0.3s;
+    }
+
+    .strength-label {
+      font-size: 0.68rem;
+      margin-top: 3px;
+      color: #94a3b8;
+      padding-left: 0.3rem;
+    }
+
+    .action-btn {
+      width: 100%;
+      background: #064e3b;
+      color: white;
+      font-weight: 700;
+      padding: 0.875rem 0;
+      border: none;
+      border-radius: 2rem;
+      font-size: 0.95rem;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 0.6rem;
+      margin-bottom: 1rem;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .action-btn:hover { background: #065f46; transform: scale(0.98); box-shadow: 0 8px 18px rgba(0,0,0,0.1); }
+    .action-btn:active { transform: scale(0.96); }
+    .action-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+
+    .error-msg {
+      color: #e11d48;
+      font-size: 0.72rem;
+      margin-top: 0.2rem;
+      padding-left: 0.5rem;
+      display: none;
+    }
+
+    .checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin: 0.8rem 0 0.2rem;
+    }
+
+    .checkbox-wrapper input { width: 16px; height: 16px; accent-color: #059669; cursor: pointer; }
+    .checkbox-wrapper label { font-size: 0.75rem; color: #334155; font-weight: 500; }
+    .checkbox-wrapper a { color: #059669; font-weight: 700; text-decoration: none; }
+    .checkbox-wrapper a:hover { text-decoration: underline; }
+
+    .terms-note {
+      font-size: 0.7rem;
+      text-align: center;
+      color: #5b6e8c;
+      margin-top: 0.8rem;
+      line-height: 1.4;
+    }
+
+    .switch-link {
+      text-align: center;
+      margin-top: 1.2rem;
+      font-size: 0.82rem;
+      color: #5b6e8c;
+    }
+
+    .switch-link a {
+      color: #059669;
+      font-weight: 700;
+      text-decoration: none;
+      margin-left: 4px;
+    }
+
+    .switch-link a:hover { text-decoration: underline; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 2rem; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #0f172a;
+      color: #fff;
+      padding: 0.7rem 1.6rem;
+      border-radius: 2rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+      z-index: 999;
+      white-space: nowrap;
+    }
+
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { background: #166534; }
+    .toast.error   { background: #991b1b; }
+
+    .footer-attribution {
+      text-align: center;
+      margin-top: 1.8rem;
+      font-size: 0.7rem;
+      color: #7f8c9b;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-attribution span i { margin-right: 4px; }
+
+    @media (max-width: 480px) {
+      body { padding: 1rem; }
+      .hero-section h1 { font-size: 2.2rem; }
+      .auth-card { padding: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<div class="page-wrapper">
+
+  <div class="hero-section">
+    <div class="badge-row">
+      <div class="free-badge">
+        <i class="fas fa-gem" style="font-size:0.7rem"></i> free forever
+      </div>
+    </div>
+    <h1>SIGN UP</h1>
+    <p>Join and start checking your text for free.</p>
+  </div>
+
+  <div class="auth-card">
+    <div class="card-header">
+      <h2>Create account 🚀</h2>
+      <div class="card-sub">
+        <i class="fas fa-user-plus"></i> It only takes a moment
+      </div>
+    </div>
+
+    <form id="signupForm">
+      <div class="input-group">
+        <label>Username</label>
+        <div class="input-field">
+          <i class="far fa-user"></i>
+          <input type="text" id="signupUsername" placeholder="Choose a username" autocomplete="username">
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Password</label>
+        <div class="input-field">
+          <i class="fas fa-key"></i>
+          <input type="password" id="signupPassword" placeholder="Create a strong password" autocomplete="new-password">
+        </div>
+        <div class="strength-bar"><div class="strength-bar-fill" id="strengthFill"></div></div>
+        <div class="strength-label" id="strengthLabel">Enter a password</div>
+      </div>
+
+      <div class="input-group">
+        <label>Confirm Password</label>
+        <div class="input-field">
+          <i class="fas fa-check-circle"></i>
+          <input type="password" id="signupConfirm" placeholder="Repeat your password">
+        </div>
+        <div id="signupError" class="error-msg"></div>
+      </div>
+
+      <div class="checkbox-wrapper">
+        <input type="checkbox" id="termsCheckbox">
+        <label for="termsCheckbox">I agree to the
+          <a href="#" id="termsLink">Terms and Conditions</a>
+        </label>
+      </div>
+
+      <button type="submit" class="action-btn" id="signupBtn">
+        <i class="fas fa-user-plus"></i> CREATE ACCOUNT
+      </button>
+    </form>
+
+    <div class="terms-note">
+      <i class="fas fa-laptop-code"></i> Join now — it's free
+    </div>
+
+    <div class="switch-link">
+      Already have an account?
+      <a href="login.html">&larr; Sign in</a>
+    </div>
+  </div>
+
+  <div class="footer-attribution">
+    <span><i class="far fa-copyright"></i> created by group 7</span>
+    <span><i class="fas fa-mountain-sun"></i> nà ná na na</span>
+  </div>
+
+</div>
+
+<script>
+  const BASE_URL = "http://localhost:5000";
+
+  if (localStorage.getItem("token")) {
+    window.location.href = "index.html";
+  }
+
+  /* ── Toast ── */
+  function showToast(msg, kind = "") {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.className = "toast show" + (kind ? " " + kind : "");
+    setTimeout(() => t.classList.remove("show"), 3200);
+  }
+
+  /* ── Inline error ── */
+  function setError(id, msg) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = msg;
+    el.style.display = msg ? "block" : "none";
+  }
+
+  /* ── Clear error on focus ── */
+  ["signupUsername", "signupPassword", "signupConfirm"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("focus", () => setError("signupError", ""));
+  });
+
+  /* ── Password strength indicator ── */
+  document.getElementById("signupPassword").addEventListener("input", function () {
+    const val = this.value;
+    const fill  = document.getElementById("strengthFill");
+    const label = document.getElementById("strengthLabel");
+
+    let score = 0;
+    if (val.length >= 6)               score++;
+    if (val.length >= 10)              score++;
+    if (/[A-Z]/.test(val))            score++;
+    if (/[0-9]/.test(val))            score++;
+    if (/[^A-Za-z0-9]/.test(val))     score++;
+
+    const levels = [
+      { w: "0%",   bg: "#e2e8f0", text: "Enter a password" },
+      { w: "25%",  bg: "#ef4444", text: "Weak" },
+      { w: "50%",  bg: "#f97316", text: "Fair" },
+      { w: "75%",  bg: "#eab308", text: "Good" },
+      { w: "88%",  bg: "#22c55e", text: "Strong" },
+      { w: "100%", bg: "#059669", text: "Very strong 💪" },
+    ];
+
+    const lvl = val.length === 0 ? levels[0] : levels[Math.min(score, 5)];
+    fill.style.width      = lvl.w;
+    fill.style.background = lvl.bg;
+    label.textContent     = lvl.text;
+    label.style.color     = val.length === 0 ? "#94a3b8" : lvl.bg;
+  });
+
+  /* ── SIGN UP ── */
+  document.getElementById("signupForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const username = document.getElementById("signupUsername").value.trim();
+    const password = document.getElementById("signupPassword").value;
+    const confirm  = document.getElementById("signupConfirm").value;
+    const terms    = document.getElementById("termsCheckbox").checked;
+    const btn      = document.getElementById("signupBtn");
+
+    if (!username)           { setError("signupError", "❌ Username is required"); return; }
+    if (username.length < 3) { setError("signupError", "⚠️ Username must be at least 3 characters"); return; }
+    if (!password)           { setError("signupError", "🔐 Password cannot be empty"); return; }
+    if (password.length < 6) { setError("signupError", "⚠️ Password must be at least 6 characters"); return; }
+    if (password !== confirm) { setError("signupError", "❌ Passwords do not match"); return; }
+    if (!terms)              { setError("signupError", "📜 You must accept the Terms and Conditions"); return; }
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account…';
+
+    try {
+      const res  = await fetch(`${BASE_URL}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError("signupError", "❌ " + (data.error || "Registration failed"));
+        return;
+      }
+
+      showToast("🎉 Account created! Redirecting to sign in…", "success");
+      setTimeout(() => window.location.href = "login.html", 1200);
+
+    } catch (err) {
+      setError("signupError", "🌐 Network error: " + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-user-plus"></i> CREATE ACCOUNT';
+    }
+  });
+
+  /* ── Terms link ── */
+  document.getElementById("termsLink").addEventListener("click", (e) => {
+    e.preventDefault();
+    showToast("📄 Full Terms & Conditions available in production.");
+  });
+</script>
+</body>
+</html>

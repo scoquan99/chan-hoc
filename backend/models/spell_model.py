@@ -1,5 +1,6 @@
 from textblob import TextBlob
 import language_tool_python
+import language_tool_python.utils as lt_utils
 
 class SpellChecker:
 
@@ -12,6 +13,7 @@ class SpellChecker:
         corrected_text = str(blob.correct())
 
         matches = self.tool.check(text)
+        corrected_text = lt_utils.correct(text, matches)
 
         grammar_errors = []
         style_errors = []
